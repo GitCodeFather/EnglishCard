@@ -24,29 +24,77 @@ st.set_page_config(
 # ============================================================
 
 def get_db_connection():
-    """
-    TODO: Реализовать подключение к PostgreSQL
-    Параметры подключения:
-    - host: localhost
-    - database: english_card
-    - user: postgres
-    - password: postgres
-    """
-    pass
+
+    try:
+        conn = psycopg2.connect(host='localhost', database='english_card', user='postgres', password='postgres')
+        st.write('Соединение с базой данных установлено!')
+        return conn
+    except psycopg2.Error as er:
+        st.error('Ошибка соединения с базой данных!')
+        return None
 
 
 def init_database():
-    """
-    TODO: Реализовать создание таблиц, если они не существуют
-    Необходимые таблицы:
-    1. users (id, username, created_at)
-    2. common_words (id, russian_word, english_word, created_at)
-    3. user_words (id, user_id, russian_word, english_word, created_at)
-    4. learning_stats (id, user_id, word_id, word_type, correct_answers, total_attempts, last_reviewed)
 
-    Также заполнить common_words начальными словами (минимум 10 слов)
-    """
-    pass
+    conn = get_db_connection()
+    if conn is None:
+        return None
+    else:
+        with conn.cursor() as cur:
+            cur.execute("""
+            CREATE TABLE IF NOT EXISTS users(
+            id SERIAL PRIMARY KEY,
+            user_name VARCHAR(120) NOT NULL,
+            created_at TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP)
+            """)
+
+            cur.execute("""
+            CREATE TABLE IF NOT EXISTS common_words(
+            id SERIAL PRIMARY KEY,
+            russian_word VARCHAR(50) NOT NULL,
+            english_word VARCHAR(50) NOT NULL,
+            UNIQUE (russian_word, english_word),
+            created_at TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP)
+            """)
+
+            cur.execute("""
+            CREATE TABLE IF NOT EXISTS user_words(
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            russian_word VARCHAR(50) NOT NULL,
+            english_word VARCHAR(50) NOT NULL,
+            UNIQUE (user_id, russian_word, english_word),
+            created_at TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP)
+            """)
+
+            cur.execute("""
+            CREATE TABLE IF NOT EXISTS learning_stats(
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            word_id INTEGER NOT NULL,
+            word_type VARCHAR(50) NOT NULL,
+            UNIQUE (user_id, word_id, word_type),
+            correct_answers INTEGER NOT NULL DEFAULT 0,
+            total_attempts INTEGER NOT NULL DEFAULT 0,
+            last_reviewed TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP)
+            """)
+
+            cur.execute("""
+            INSERT INTO common_words (russian_word, english_word) VALUES
+            ('красный', 'red'),
+            ('синий', 'blue'),
+            ('я', 'I'),
+            ('ты', 'you'),
+            ('кошка', 'cat'),
+            ('собака', 'dog'),
+            ('один', 'one'),
+            ('два', 'two'),
+            ('хороший', 'good'),
+            ('спасибо', 'thank you')
+            ON CONFLICT DO NOTHING
+            """)
+        conn.commit()
+        conn.close()
 
 
 def login_user(username):
