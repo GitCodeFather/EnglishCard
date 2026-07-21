@@ -79,23 +79,18 @@
 
 # Структура проекта
 
-EnglishCard
+```text
+EnglishCard/
 │
 ├── main.py              # Главный файл запуска приложения
-│
 ├── database.py          # Работа с базой данных
-│
 ├── ui.py                # Интерфейс Streamlit
-│
 ├── utils.py             # Вспомогательные функции
-│
 ├── schema.png           # Схема базы данных
-│
 ├── .env                 # Настройки подключения к БД
-│
 ├── requirements.txt     # Зависимости проекта
-│
 └── README.md            # Документация проекта
+```
 
 ---
 
@@ -105,3 +100,16 @@ EnglishCard
 
 ```bash
 git clone https://github.com/GitCodeFather/EnglishCard.git
+```
+
+---
+
+## Настройка переменных окружения
+
+Создать файл `.env`:
+
+DB_HOST=localhost
+DB_NAME=english_card
+DB_USER=postgres
+DB_PASSWORD=ваш_пароль
+DB_PORT=5432
