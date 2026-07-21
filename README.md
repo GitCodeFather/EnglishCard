@@ -107,9 +107,10 @@ git clone https://github.com/GitCodeFather/EnglishCard.git
 ## Настройка переменных окружения
 
 Создать файл `.env`:
-
+```env
 DB_HOST=localhost
 DB_NAME=english_card
 DB_USER=postgres
 DB_PASSWORD=ваш_пароль
 DB_PORT=5432
+```
